@@ -1,0 +1,173 @@
+<html>
+
+<head>
+	<style>
+		html {
+			height: 100%
+		}
+
+		body {
+			max-height: 100vh;
+		}
+
+		#main {
+			background-image: url("PhotonMonoX.jpg");
+			background-size: contain;
+			background-position: center;
+			background-repeat: no-repeat;
+			top: 20%;
+			height: 40%;
+		}
+
+		.title {
+			text-align: center;
+			font-family: "SF Mono", Arial;
+			top: 10%;
+			font-size: 300%;
+		}
+
+		#temps {
+			text-align: center;
+			font-family: "SF Mono", Arial;
+			font-size: 200%;
+			height: 60%;
+		}
+
+		.tempBox {
+			width: 600px;
+			height: 150px;
+			margin: 20 auto;
+			line-height: 150px;
+			white-space: nowrap;
+			font-size: 200%;
+			text-align: center;
+			vertical-align: middle;
+			border-radius: 40px;
+		}
+
+		.missing {
+			background-color: rgb(250, 200, 200);
+			border: 20px solid rgb(200, 40, 40);
+		}
+
+		.coldest {
+			background-color: rgb(80, 120, 255);
+		}
+
+		.colder {
+			background-color: rgb(0, 180, 200);
+		}
+
+		.cold {
+			background-color: rgb(0, 200, 150);
+		}
+
+		.warm {
+			background-color: rgb(50, 200, 50);
+		}
+
+		.hot {
+			background-color: rgb(150, 200, 0);
+		}
+
+		.hotter {
+			background-color: rgb(200, 100, 0);
+		}
+
+		.hottest {
+			background-color: rgb(200, 40, 40);
+		}
+
+	</style>
+	<script>
+		// async function getTemps() {
+		// 	let response = await fetch('http://10.0.0.82', { mode: 'no-cors' })
+		// 	console.log(response);
+		// 	let sensors = await response.json();
+		// 	return sensors;
+		// }
+		function padNumber(number, size) {
+			number = number.toString();
+			while (number.length < size) number = "0" + number;
+			return number;
+		}
+		function getTempBox(sensor) {
+			if (sensor.temperature <= 23.5) {
+				tempType = "coldest";
+			} else if (sensor.temperature < 24.5) {
+				tempType = "colder";
+			} else if (sensor.temperature < 26) {
+				tempType = "cold";
+			} else if (sensor.temperature > 32) {
+				tempType = "hottest";
+			} else if (sensor.temperature > 30) {
+				tempType = "hotter";
+			} else if (sensor.temperature > 28.75) {
+				tempType = "hot";
+			} else {
+				tempType = "warm";
+			}
+
+			if (sensor.present == 0) {
+				tempType = "missing";
+			}
+
+			output = "<div class='tempBox " + tempType + "' title='" + sensor.address + "'>" + sensor.name + ": " + sensor.temperature.toFixed(2) + "&deg;C</div>";
+			return output
+		}
+
+		function getTemperatures(url) {
+			console.log('---- Start')
+			var request = new XMLHttpRequest();
+			request.open('GET', url, true);
+			request.timeout = 3000;
+			request.setRequestHeader('Access-Control-Allow-Headers', '*');
+			request.setRequestHeader('Access-Control-Allow-Origin', '*');
+			request.onload = function () {
+				console.log('---- onload start')
+				console.log(this.response)
+				var data = JSON.parse(this.response)
+				var tempsOutput = '';
+				console.log(data);
+				if (request.status >= 200 && request.status < 400) {
+					console.log("=== received response")
+					data.forEach(function (sensor) {
+						sensor.address = sensor.address.replace(/0x/g, '').replace(/, /g, ':');
+						console.log(sensor.address + "| " + sensor.name + " = " + sensor.temperature);
+						tempsOutput += getTempBox(sensor);
+					});
+				} else {
+					console.log('error');
+				}
+				var now = new Date();
+				var time = padNumber(now.getHours(), 2) + ":" + padNumber(now.getMinutes(), 2) + ":" + padNumber(now.getSeconds(), 2);
+				tempsOutput += "<p>Last update: " + time + "</p";
+				document.getElementById("tempBoxes").innerHTML = tempsOutput;
+				console.log('---- onload end')
+			}
+
+			console.log("---- Sending request")
+			request.send()
+			console.log("---- Request sent")
+		}
+		getTemperatures('http://10.0.0.82')
+		setInterval(function () { getTemperatures('http://10.0.0.82') }, 10 * 1000);
+	</script>
+</head>
+
+<body>
+	<div class='title'>
+		<h2>Photon Mono X<h2>
+	</div>
+	<div id='main'>
+	</div>
+
+	<div id='temps'>
+		<h2>Current Temperatures</h2>
+		<div id='tempBoxes'>
+			<h2>OFFLINE</h2>
+		</div>
+	</div>
+</body>
+
+</html>
