@@ -94,7 +94,7 @@
 
 		function getTempBox(sensor) {
 			if (sensor.temperature == -127 ) {
-				tempType = "coldest";
+				tempType = "missing";
 			} else if (sensor.temperature < 23) {
 				tempType = "coldest";
 			} else if (sensor.temperature < 24.5) {
