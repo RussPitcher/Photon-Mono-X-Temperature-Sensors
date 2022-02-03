@@ -79,8 +79,7 @@ String getSensorJson() {
         out = out + "  {\n";
         out = out + "    \"name\": \"" + sensors[ii].Name + "\",\n";
         out = out + "    \"address\": \"" + formatAddress(sensors[ii].Address) + "\",\n";
-        out = out + "    \"temperature\": " + String(sensors[ii].Temperature) + ",\n";
-        out = out + "    \"present\": " + String(sensors[ii].Present) + "\n";
+        out = out + "    \"temperature\": " + String(sensors[ii].Temperature) + "\n";
         if (ii == (SENSOR_COUNT - 1)) {
             out = out + "  }\n";
         } else {
@@ -94,7 +93,6 @@ String getSensorJson() {
 void handleRoot() {
     DS18B20.requestTemperatures();
     for (int ii = 0; ii < SENSOR_COUNT; ii++) {
-        sensors[ii].Present = DS18B20.requestTemperaturesByAddress(sensors[ii].Address);
 		sensors[ii].Temperature = DS18B20.getTempC(sensors[ii].Address);
     }
 
