@@ -91,8 +91,11 @@
 			while (number.length < size) number = "0" + number;
 			return number;
 		}
+
 		function getTempBox(sensor) {
-			if (sensor.temperature <= 23.5) {
+			if (sensor.temperature == -127 ) {
+				tempType = "coldest";
+			} else if (sensor.temperature < 23) {
 				tempType = "coldest";
 			} else if (sensor.temperature < 24.5) {
 				tempType = "colder";
@@ -102,14 +105,10 @@
 				tempType = "hottest";
 			} else if (sensor.temperature > 30) {
 				tempType = "hotter";
-			} else if (sensor.temperature > 28.75) {
+			} else if (sensor.temperature > 28.5) {
 				tempType = "hot";
 			} else {
 				tempType = "warm";
-			}
-
-			if (sensor.present == 0) {
-				tempType = "missing";
 			}
 
 			output = "<div class='tempBox " + tempType + "' title='" + sensor.address + "'>" + sensor.name + ": " + sensor.temperature.toFixed(2) + "&deg;C</div>";
@@ -145,11 +144,11 @@
 				document.getElementById("tempBoxes").innerHTML = tempsOutput;
 				console.log('---- onload end')
 			}
-
 			console.log("---- Sending request")
 			request.send()
 			console.log("---- Request sent")
 		}
+
 		getTemperatures('http://10.0.0.82')
 		setInterval(function () { getTemperatures('http://10.0.0.82') }, 10 * 1000);
 	</script>
